@@ -1,4 +1,15 @@
 package interpreter.model.stmt;
 
-public record NopStmt() {
+import interpreter.model.PrgState;
+
+public record NopStmt() implements IStmt {
+    @Override
+    public PrgState execute(PrgState state) {
+        return state;              // S6: nothing changes
+    }
+
+    @Override
+    public String toString() {
+        return "nop";
+    }
 }

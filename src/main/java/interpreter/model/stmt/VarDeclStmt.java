@@ -1,20 +1,25 @@
 package interpreter.model.stmt;
+
 import interpreter.exceptions.MyException;
 import interpreter.exceptions.StatementException;
 import interpreter.model.PrgState;
 import interpreter.model.type.IType;
-public record VarDeclStmt(String name , IType type) implements IStmt {
+
+public record VarDeclStmt(String name, IType type) implements IStmt {
     @Override
-    public PrgState execute(PrgState state) throws MyException{
+    public PrgState execute(PrgState state) throws MyException {
         var symTable = state.getSymTable();
-        if(symTable.isDefined(name))
+        // S3 error: variable already declared.
+        if (symTable.isDefined(name))
             throw new StatementException("variable " + name + " is already declared");
-        //s3 id->default(type) this is the only caller of itype.defaultvalue(
-        symTable.put(name,type.defaultValue());
+        // S3: SymTable gets Id -> default(Type), i.e. int -> 0, bool -> false.
+        // This is the ONLY caller of IType.defaultValue() in the whole program.
+        symTable.put(name, type.defaultValue());
         return state;
     }
+
     @Override
-    public String toString(){
-        return type + " " + name; // int v relies on IntType.toString()= int
+    public String toString() {
+        return type + " " + name;      // "int v" - needs IntType.toString() == "int"
     }
 }
