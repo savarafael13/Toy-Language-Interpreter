@@ -25,10 +25,6 @@ public class PrgState {
     /**
      * The three structures are passed in already created (dependency injection),
      * so the ADT implementations can be swapped without changing PrgState.
-     *
-     * §3.1: "Initially: ExeStack contains the whole program; SymTable and Out are empty."
-     * The push below is what guarantees the first part - and it must happen ONLY here.
-     * If Main or Controller pushed the program as well, every program would execute twice.
      */
     public PrgState(IStack<IStmt> exeStack, IDictionary<String, IValue> symTable,
                     IList<IValue> out, IStmt program) {
@@ -39,7 +35,7 @@ public class PrgState {
         exeStack.push(program);
     }
 
-    // ---------- getters: used by every statement's execute(...) ----------
+    // getter
 
     /** Statements still to execute; top = next (CompStmt/IfStmt push here). */
     public IStack<IStmt> getExeStack() {
@@ -61,7 +57,7 @@ public class PrgState {
         return originalProgram;
     }
 
-    // ---------- setters: the three structures can be replaced ----------
+    // setters
 
     public void setExeStack(IStack<IStmt> exeStack) {
         this.exeStack = exeStack;

@@ -11,10 +11,10 @@ public record IfStmt(IExp cond, IStmt thenStmt, IStmt elseStmt) implements IStmt
     @Override
     public PrgState execute(PrgState state) throws MyException {
         IValue c = cond.eval(state.getSymTable());
-        // §4.10: a non-boolean condition is a StatementException, not an ExpressionException.
+        //  a non-boolean condition is a StatementException, not an ExpressionException.
         if (!(c instanceof BoolValue(boolean b)))
             throw new StatementException("the condition of the if is not a boolean");
-        // S5: push exactly ONE branch - never both.
+        //  push exactly ONE branch - never both.
         state.getExeStack().push(b ? thenStmt : elseStmt);
         return state;
     }

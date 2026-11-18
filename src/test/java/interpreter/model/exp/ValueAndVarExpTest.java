@@ -24,7 +24,7 @@ class ValueAndVarExpTest {
     void valueExpReturnsItsIntegerValue() throws MyException {
         assertEquals(new IntValue(7), new ValueExp(new IntValue(7)).eval(symTable));
     }
-
+// first commit
     @Test
     void valueExpReturnsItsBooleanValue() throws MyException {
         assertEquals(new BoolValue(true), new ValueExp(new BoolValue(true)).eval(symTable));

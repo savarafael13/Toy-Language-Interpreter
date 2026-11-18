@@ -4,9 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class MyDictionary<K , V> implements IDictionary<K,V> {
-// The lab comment says "wraps a HashMap". LinkedHashMap is used instead so
+// LinkedHashMap is used so
     // that toString() keeps insertion order: with HashMap, two variables would
-    // print in an unpredictable order and the §3.3 trace would not be reproducible
+    // print in an unpredictable order and the trace would not be reproducible
     private final Map<K,V> map = new LinkedHashMap<>();
     @Override
     public boolean isDefined(K key) {

@@ -4,6 +4,7 @@ import interpreter.model.value.IValue;
 //a constat evaluates to istself . component is IValue not int value so bool constats use the same class
 public record ValueExp(IValue value) implements IExp {
     @Override
+
     public IValue eval(IDictionary<String , IValue> symTable){
         return value;
     }
