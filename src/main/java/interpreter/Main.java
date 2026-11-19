@@ -40,9 +40,9 @@ public class Main {
             }
 
             try {
-                // A3 (§2.3): migrated from 4-arg new PrgState(...) to PrgState.of(...)
                 PrgState state = PrgState.of(program);
-                new Controller(new Repository(state), true).allStep();
+                // A3 (§2.6): pass temporary log file path until Step 6 adds TextMenu
+                new Controller(new Repository(state, "log" + choice + ".txt"), true).allStep();
                 System.out.println("Program finished. Output: " + state.getOut());
             } catch (MyException e) {
                 System.out.println("Error: " + e.getMessage());

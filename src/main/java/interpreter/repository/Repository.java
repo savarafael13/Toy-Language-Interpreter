@@ -1,38 +1,43 @@
 package interpreter.repository;
 
+import interpreter.exceptions.MyException;
+import interpreter.exceptions.RepositoryException;
 import interpreter.model.PrgState;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * §4.6: "Class Repository implements it and stores the program states in a
- * List<PrgState> - later the repository will hold the states of several threads."
- *
- * Today the list always has exactly one element, but it is a List from the
- * start so that the multi-threaded assignment later only adds methods, and
- * does not force a change of the field type.
- */
 public class Repository implements IRepository {
 
     private final List<PrgState> prgList = new ArrayList<>();
+    // A3 (§2.6): path to the log file passed when constructing the repository
+    private final String logFilePath;
 
-    /**
-     * The state is handed to the constructor: by the time a Repository exists,
-     * the PrgState has already been built (and therefore already has the whole
-     * program pushed onto its ExeStack - see PrgState's constructor).
-     */
-    public Repository(PrgState state) {
+    // A3 (§2.6): updated constructor taking both the initial state and the log file path
+    public Repository(PrgState state, String logFilePath) {
         prgList.add(state);
+        this.logFilePath = logFilePath;
     }
 
-    /**
-     * Returns the current (only) program state.
-     * Not a copy: Controller mutates this very object, step by step, and those
-     * mutations are what the view displays and the tests assert on.
-     */
     @Override
     public PrgState getCrtPrg() {
         return prgList.get(0);
+    }
+
+    // A3 (§2.6): opens the log file in append mode with try-with-resources so every
+    // logged step is flushed immediately even if a later step throws an exception
+    @Override
+    public void logPrgStateExec() throws MyException {
+        try (var logFile = new PrintWriter(
+                new BufferedWriter(new FileWriter(logFilePath, true)))) {
+            logFile.println(getCrtPrg().toLogString());
+        } catch (IOException e) {
+            throw new RepositoryException("cannot write the log file " + logFilePath
+                    + ": " + e.getMessage());
+        }
     }
 }

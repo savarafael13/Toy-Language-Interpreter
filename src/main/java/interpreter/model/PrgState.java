@@ -3,32 +3,23 @@ package interpreter.model;
 import interpreter.model.adt.IDictionary;
 import interpreter.model.adt.IList;
 import interpreter.model.adt.IStack;
-import interpreter.model.adt.MyDictionary; // A3 (§2.3): used by PrgState.of(...)
-import interpreter.model.adt.MyList;       // A3 (§2.3): used by PrgState.of(...)
-import interpreter.model.adt.MyStack;      // A3 (§2.3): used by PrgState.of(...)
+import interpreter.model.adt.MyDictionary;
+import interpreter.model.adt.MyList;
+import interpreter.model.adt.MyStack;
 import interpreter.model.stmt.IStmt;
 import interpreter.model.value.IValue;
-import interpreter.model.value.StringValue; // A3 (§1.2, §2.3): FileTable key type
+import interpreter.model.value.StringValue;
 
-import java.io.BufferedReader;             // A3 (§1.2, §2.3): FileTable value type
+import java.io.BufferedReader;
 
-/**
- * The program state. Bundles the four runtime structures:
- *   - exeStack  : statements still to execute (top = next)
- *   - symTable  : declared variables and their current values
- *   - out       : values printed so far, in order
- *   - fileTable : A3 (§1.2) open file names mapped to their BufferedReaders
- */
 public class PrgState {
 
     private IStack<IStmt> exeStack;
     private IDictionary<String, IValue> symTable;
     private IList<IValue> out;
-    // A3 (§1.2, §2.3): fourth structure tracking currently open files
     private IDictionary<StringValue, BufferedReader> fileTable;
     private final IStmt originalProgram;
 
-    // A3 (§2.3): updated constructor accepting the FileTable alongside the A2 structures
     public PrgState(IStack<IStmt> exeStack, IDictionary<String, IValue> symTable,
                     IList<IValue> out, IDictionary<StringValue, BufferedReader> fileTable,
                     IStmt program) {
@@ -40,7 +31,6 @@ public class PrgState {
         exeStack.push(program);
     }
 
-    // A3 (§2.3): static factory creating a PrgState with fresh empty structures
     public static PrgState of(IStmt program) {
         return new PrgState(
                 new MyStack<>(),
@@ -65,7 +55,6 @@ public class PrgState {
         return out;
     }
 
-    // A3 (§2.3): getter for FileTable used by openRFile, readFile, closeRFile, and logging
     public IDictionary<StringValue, BufferedReader> getFileTable() {
         return fileTable;
     }
@@ -88,9 +77,24 @@ public class PrgState {
         this.out = out;
     }
 
-    // A3 (§2.3): setter for FileTable
     public void setFileTable(IDictionary<StringValue, BufferedReader> fileTable) {
         this.fileTable = fileTable;
+    }
+
+    // A3 (§2.6): formats the current state for the log file with the exact four
+    // section headers required (ExeStack:, SymTable:, Out:, FileTable:)
+    public String toLogString() {
+        var sb = new StringBuilder();
+        sb.append("ExeStack:\n");
+        exeStack.toList().forEach(s -> sb.append(s).append('\n'));
+        sb.append("SymTable:\n");
+        symTable.toMap().forEach((k, v) ->
+                sb.append(k).append(" --> ").append(v).append('\n'));
+        sb.append("Out:\n");
+        out.toList().forEach(v -> sb.append(v).append('\n'));
+        sb.append("FileTable:\n");
+        fileTable.toMap().keySet().forEach(f -> sb.append(f.val()).append('\n'));
+        return sb.toString();
     }
 
     @Override
@@ -98,7 +102,6 @@ public class PrgState {
         return "ExeStack: " + exeStack + "\n"
                 + "SymTable: " + symTable + "\n"
                 + "Out: " + out + "\n"
-                // A3 (§1.2): include FileTable in console step display
                 + "FileTable: " + fileTable;
     }
 }
