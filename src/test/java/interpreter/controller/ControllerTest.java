@@ -19,13 +19,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ControllerTest {
 
-    // A3 (§3, §3.2): temporary directory so log files created during tests never touch project root
     @TempDir
     Path dir;
 
     private PrgState run(IStmt program) throws MyException {
         PrgState state = PrgState.of(program);
-        // A3 (§2.6, §3): pass a temporary log file path to Repository
         var repo = new Repository(state, dir.resolve("log.txt").toString());
         new Controller(repo, false).allStep();
         return state;
@@ -71,7 +69,6 @@ class ControllerTest {
         assertTrue(ex.getMessage().toLowerCase().contains("empty"));
     }
 
-    // A3 (§3.1, §3.2): Step 5 test verifying the four required log sections appear in order
     @Test
     void logFileContainsTheFourSectionsInOrder() throws Exception {
         run(Examples.EX1);
@@ -83,13 +80,41 @@ class ControllerTest {
         assertTrue(0 <= a && a < b && b < c && c < d);
     }
 
-    // A3 (§2.6, §2.8): verifies IOException while opening the log file becomes RepositoryException
     @Test
     void invalidLogPathThrowsRepositoryException() {
         PrgState state = PrgState.of(Examples.EX1);
-        // Passing a directory path instead of a file path triggers IOException on FileWriter
         var repo = new Repository(state, dir.toString());
         var controller = new Controller(repo, false);
         assertThrows(RepositoryException.class, controller::allStep);
+    }
+
+    // A3 (§3.1, §3.2): Step 7 test verifying EX4 reads 15 and 50 and closes the file
+    @Test
+    void fileExampleReadsBothNumbersAndClosesTheFile() throws Exception {
+        Path in = dir.resolve("test.in");
+        Files.writeString(in, "15\n50\n");
+        PrgState s = run(Examples.fileExample(in.toString()));
+        assertEquals(new IntValue(15), s.getOut().get(0));
+        assertEquals(new IntValue(50), s.getOut().get(1));
+        assertTrue(s.getFileTable().toMap().isEmpty());
+    }
+
+    // A3 (§1.4, §3.1): Step 7 test verifying EX4 prints 0, 0 on an empty file
+    @Test
+    void fileExampleWithEmptyFilePrintsZerosAndClosesTheFile() throws Exception {
+        Path emptyIn = dir.resolve("empty.in");
+        Files.writeString(emptyIn, "");
+        PrgState s = run(Examples.fileExample(emptyIn.toString()));
+        assertEquals(new IntValue(0), s.getOut().get(0));
+        assertEquals(new IntValue(0), s.getOut().get(1));
+        assertTrue(s.getFileTable().toMap().isEmpty());
+    }
+
+    // A3 (§1.4, §3.1): Step 7 test verifying EX5 (5 < 7) prints 5
+    @Test
+    void example5PrintsFive() throws MyException {
+        PrgState s = run(Examples.EX5);
+        assertEquals(1, s.getOut().size());
+        assertEquals(new IntValue(5), s.getOut().get(0));
     }
 }

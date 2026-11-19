@@ -11,12 +11,17 @@ import interpreter.view.TextMenu;
 
 import java.util.List;
 
-// A3 (§2.7): wires each example to its own PrgState, Repository (logN.txt), Controller, and Command
 public class Main {
 
     public static void main(String[] args) {
-        // Step 7 adds Examples.EX4 and Examples.EX5 to this list
-        List<IStmt> programs = List.of(Examples.EX1, Examples.EX2, Examples.EX3);
+        // A3 (§2.7, §2.8): register all five examples (EX1-EX5) in the Command menu
+        List<IStmt> programs = List.of(
+                Examples.EX1,
+                Examples.EX2,
+                Examples.EX3,
+                Examples.EX4,
+                Examples.EX5
+        );
 
         TextMenu menu = new TextMenu();
         menu.addCommand(new ExitCommand("0", "exit"));
