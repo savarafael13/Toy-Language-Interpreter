@@ -4,6 +4,8 @@ import interpreter.exceptions.ADTException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class MyStackTest {
@@ -44,5 +46,13 @@ class MyStackTest {
         stack.push(1);
         stack.push(2);
         assertEquals("[2, 1]", stack.toString());
+    }
+
+    // A3 (§2.3): test for toList()
+    @Test
+    void toListReturnsTopFirst() {
+        stack.push(1);
+        stack.push(2);
+        assertEquals(List.of(2, 1), stack.toList());
     }
 }

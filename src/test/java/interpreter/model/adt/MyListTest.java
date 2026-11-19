@@ -4,6 +4,8 @@ import interpreter.exceptions.ADTException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class MyListTest {
@@ -44,5 +46,13 @@ class MyListTest {
         list.add(1);
         list.add(2);
         assertEquals("[1, 2]", list.toString());
+    }
+
+    // A3 (§2.3): test for toList()
+    @Test
+    void toListPreservesInsertionOrder() {
+        list.add(10);
+        list.add(20);
+        assertEquals(List.of(10, 20), list.toList());
     }
 }

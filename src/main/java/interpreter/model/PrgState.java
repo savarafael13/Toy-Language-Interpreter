@@ -3,56 +3,73 @@ package interpreter.model;
 import interpreter.model.adt.IDictionary;
 import interpreter.model.adt.IList;
 import interpreter.model.adt.IStack;
+import interpreter.model.adt.MyDictionary; // A3 (§2.3): used by PrgState.of(...)
+import interpreter.model.adt.MyList;       // A3 (§2.3): used by PrgState.of(...)
+import interpreter.model.adt.MyStack;      // A3 (§2.3): used by PrgState.of(...)
 import interpreter.model.stmt.IStmt;
 import interpreter.model.value.IValue;
+import interpreter.model.value.StringValue; // A3 (§1.2, §2.3): FileTable key type
+
+import java.io.BufferedReader;             // A3 (§1.2, §2.3): FileTable value type
 
 /**
- * The program state (§3.1, §4.5). One PrgState per executed program.
- *
- * It bundles the three structures of §3.1:
- *   - exeStack : the statements still to execute; the top is executed next
- *   - symTable : the declared variables and their current values
- *   - out      : the values printed so far, in order
- * plus the original program, kept so it can be displayed or re-run later (§4.5 note).
+ * The program state. Bundles the four runtime structures:
+ *   - exeStack  : statements still to execute (top = next)
+ *   - symTable  : declared variables and their current values
+ *   - out       : values printed so far, in order
+ *   - fileTable : A3 (§1.2) open file names mapped to their BufferedReaders
  */
 public class PrgState {
 
     private IStack<IStmt> exeStack;
     private IDictionary<String, IValue> symTable;
     private IList<IValue> out;
+    // A3 (§1.2, §2.3): fourth structure tracking currently open files
+    private IDictionary<StringValue, BufferedReader> fileTable;
     private final IStmt originalProgram;
 
-    /**
-     * The three structures are passed in already created (dependency injection),
-     * so the ADT implementations can be swapped without changing PrgState.
-     */
+    // A3 (§2.3): updated constructor accepting the FileTable alongside the A2 structures
     public PrgState(IStack<IStmt> exeStack, IDictionary<String, IValue> symTable,
-                    IList<IValue> out, IStmt program) {
+                    IList<IValue> out, IDictionary<StringValue, BufferedReader> fileTable,
+                    IStmt program) {
         this.exeStack = exeStack;
         this.symTable = symTable;
         this.out = out;
+        this.fileTable = fileTable;
         this.originalProgram = program;
         exeStack.push(program);
     }
 
-    // getter
+    // A3 (§2.3): static factory creating a PrgState with fresh empty structures
+    public static PrgState of(IStmt program) {
+        return new PrgState(
+                new MyStack<>(),
+                new MyDictionary<>(),
+                new MyList<>(),
+                new MyDictionary<>(),
+                program
+        );
+    }
 
-    /** Statements still to execute; top = next (CompStmt/IfStmt push here). */
+    // getters
+
     public IStack<IStmt> getExeStack() {
         return exeStack;
     }
 
-    /** Declared variables -> current values (VarDeclStmt writes, VarExp reads). */
     public IDictionary<String, IValue> getSymTable() {
         return symTable;
     }
 
-    /** Values printed so far, in order (PrintStmt appends). */
     public IList<IValue> getOut() {
         return out;
     }
 
-    /** final + no setter: the original program never changes during execution. */
+    // A3 (§2.3): getter for FileTable used by openRFile, readFile, closeRFile, and logging
+    public IDictionary<StringValue, BufferedReader> getFileTable() {
+        return fileTable;
+    }
+
     public IStmt getOriginalProgram() {
         return originalProgram;
     }
@@ -71,18 +88,17 @@ public class PrgState {
         this.out = out;
     }
 
-    /**
-     * Displayed by Controller.display after every step (§3.3, §4.7).
-     * The per-structure formatting is delegated to the ADTs:
-     *   MyStack    -> [int v, (v = 2; print(v))]   (top first)
-     *   MyDictionary -> {v -> 0}                   (arrow format, §3.3)
-     *   MyList     -> [2]
-     * That is why MyDictionary overrides toString and the other two do not need to.
-     */
+    // A3 (§2.3): setter for FileTable
+    public void setFileTable(IDictionary<StringValue, BufferedReader> fileTable) {
+        this.fileTable = fileTable;
+    }
+
     @Override
     public String toString() {
         return "ExeStack: " + exeStack + "\n"
                 + "SymTable: " + symTable + "\n"
-                + "Out: " + out;
+                + "Out: " + out + "\n"
+                // A3 (§1.2): include FileTable in console step display
+                + "FileTable: " + fileTable;
     }
 }
