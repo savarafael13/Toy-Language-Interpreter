@@ -1,52 +1,37 @@
 package interpreter;
 
 import interpreter.controller.Controller;
-import interpreter.exceptions.MyException;
 import interpreter.model.PrgState;
 import interpreter.model.stmt.IStmt;
 import interpreter.repository.Repository;
 import interpreter.view.Examples;
+import interpreter.view.ExitCommand;
+import interpreter.view.RunExampleCommand;
+import interpreter.view.TextMenu;
 
-import java.util.Scanner;
+import java.util.List;
 
+// A3 (§2.7): wires each example to its own PrgState, Repository (logN.txt), Controller, and Command
 public class Main {
 
     public static void main(String[] args) {
-        Scanner in = new Scanner(System.in);
+        // Step 7 adds Examples.EX4 and Examples.EX5 to this list
+        List<IStmt> programs = List.of(Examples.EX1, Examples.EX2, Examples.EX3);
 
-        while (true) {
-            System.out.println();
-            System.out.println("1. Ex1: int v; v = 2; print(v)");
-            System.out.println("2. Ex2: int a; int b; a = 2 + 3 * 5; b = a + 1; print(b)");
-            System.out.println("3. Ex3: bool a; int v; a = true; if a then v = 2 else v = 3; print(v)");
-            System.out.println("0. exit");
-            System.out.print("> ");
+        TextMenu menu = new TextMenu();
+        menu.addCommand(new ExitCommand("0", "exit"));
 
-            String choice = in.nextLine().trim();
-
-            if (choice.equals("0"))
-                return;
-
-            IStmt program = switch (choice) {
-                case "1" -> Examples.EX1;
-                case "2" -> Examples.EX2;
-                case "3" -> Examples.EX3;
-                default -> null;
-            };
-
-            if (program == null) {
-                System.out.println("invalid option, try again");
-                continue;
-            }
-
-            try {
-                PrgState state = PrgState.of(program);
-                // A3 (§2.6): pass temporary log file path until Step 6 adds TextMenu
-                new Controller(new Repository(state, "log" + choice + ".txt"), true).allStep();
-                System.out.println("Program finished. Output: " + state.getOut());
-            } catch (MyException e) {
-                System.out.println("Error: " + e.getMessage());
-            }
+        for (int i = 0; i < programs.size(); i++) {
+            IStmt program = programs.get(i);
+            var repo = new Repository(PrgState.of(program), "log" + (i + 1) + ".txt");
+            var controller = new Controller(repo, true);
+            menu.addCommand(new RunExampleCommand(
+                    String.valueOf(i + 1),
+                    program.toString(),
+                    controller
+            ));
         }
+
+        menu.show();
     }
 }
