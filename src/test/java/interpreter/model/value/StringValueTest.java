@@ -20,7 +20,7 @@ class StringValueTest {
 
     @Test
     void declaredStringVariableGetsDefaultEmptyString() throws MyException {
-        // A3 (§2.3): migrated to PrgState.of(...)
+        // A3  checkts that varf   and  symtable initializes it to  string value and . it tests vardeclstmt  properly delegates stringtype.defaultvalue
         PrgState state = PrgState.of(new NopStmt());
 
         new VarDeclStmt("varf", new StringType()).execute(state);
@@ -29,6 +29,8 @@ class StringValueTest {
     }
 
     @Test
+//
+    // takes 2 new string objects "testin.in" into stringvalue and checks they are equal and produce the same hashcode
     void equalStringValuesHaveSameHashCode() {
         var first = new StringValue(new String("test.in"));
         var second = new StringValue(new String("test.in"));
