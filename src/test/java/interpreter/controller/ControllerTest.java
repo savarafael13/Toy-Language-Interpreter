@@ -6,7 +6,10 @@ import interpreter.exceptions.StatementException;
 import interpreter.model.PrgState;
 import interpreter.model.stmt.IStmt;
 import interpreter.model.stmt.NopStmt;
+import interpreter.model.type.IntType;
+import interpreter.model.type.RefType;
 import interpreter.model.value.IntValue;
+import interpreter.model.value.RefValue;
 import interpreter.repository.Repository;
 import interpreter.view.Examples;
 import org.junit.jupiter.api.Test;
@@ -14,6 +17,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -69,7 +74,6 @@ class ControllerTest {
         assertTrue(ex.getMessage().toLowerCase().contains("empty"));
     }
 
-    // A4 (§2.2): updated to verify all five log sections appear in exact order
     @Test
     void logFileContainsTheFiveSectionsInOrder() throws Exception {
         run(Examples.EX1);
@@ -115,5 +119,55 @@ class ControllerTest {
         PrgState s = run(Examples.EX5);
         assertEquals(1, s.getOut().size());
         assertEquals(new IntValue(5), s.getOut().get(0));
+    }
+
+    // A4 (§1.4, §3.1): EX6 allocates v and a and prints both RefValues
+    @Test
+    void example6AllocatesAndPrintsReferences() throws MyException {
+        PrgState s = run(Examples.EX6);
+        assertEquals(
+                Map.of(1, new IntValue(20), 2, new RefValue(1, new IntType())),
+                s.getHeap().getContent()
+        );
+        assertEquals(
+                List.of(new RefValue(1, new IntType()), new RefValue(2, new RefType(new IntType()))),
+                s.getOut().toList()
+        );
+    }
+
+    // A4 (§1.4, §3.1): EX7 dereferences single and double references
+    @Test
+    void example7ReadsSingleAndDoubleHeapReferences() throws MyException {
+        PrgState s = run(Examples.EX7);
+        assertEquals(List.of(new IntValue(20), new IntValue(25)), s.getOut().toList());
+    }
+
+    // A4 (§1.4, §3.1): EX8 mutates heap cell 1 from 20 to 30
+    @Test
+    void example8UpdatesHeapAndPrintsBeforeAndAfter() throws MyException {
+        PrgState s = run(Examples.EX8);
+        assertEquals(Map.of(1, new IntValue(30)), s.getHeap().getContent());
+        assertEquals(List.of(new IntValue(20), new IntValue(35)), s.getOut().toList());
+    }
+
+    // A4 (§1.4, §2.6, §3.1): EX9 preserves address 1 via a -> 2 -> 1 and prints 20
+    @Test
+    void example9PreservesIndirectlyReachableAddressAndPrintsTwenty() throws MyException {
+        PrgState s = run(Examples.EX9);
+        assertEquals(List.of(new IntValue(20)), s.getOut().toList());
+        assertEquals(
+                Map.of(1, new IntValue(20), 2, new RefValue(1, new IntType()), 3, new IntValue(30)),
+                s.getHeap().getContent()
+        );
+    }
+
+    // A4 (§1.4, §3.1): EX10 counts down from 4 to 0
+    @Test
+    void example10CountsDownFromFourToZero() throws MyException {
+        PrgState s = run(Examples.EX10);
+        assertEquals(
+                List.of(new IntValue(4), new IntValue(3), new IntValue(2), new IntValue(1), new IntValue(0)),
+                s.getOut().toList()
+        );
     }
 }

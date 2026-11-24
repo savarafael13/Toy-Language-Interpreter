@@ -14,13 +14,18 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args) {
-        // A3 (§2.7, §2.8): register all five examples (EX1-EX5) in the Command menu
+        // A4 (§2.7): register EX1-EX10 in the Command menu mapped to log1.txt-log10.txt
         List<IStmt> programs = List.of(
                 Examples.EX1,
                 Examples.EX2,
                 Examples.EX3,
                 Examples.EX4,
-                Examples.EX5
+                Examples.EX5,
+                Examples.EX6,
+                Examples.EX7,
+                Examples.EX8,
+                Examples.EX9,
+                Examples.EX10
         );
 
         TextMenu menu = new TextMenu();
