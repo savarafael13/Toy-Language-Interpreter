@@ -69,15 +69,17 @@ class ControllerTest {
         assertTrue(ex.getMessage().toLowerCase().contains("empty"));
     }
 
+    // A4 (§2.2): updated to verify all five log sections appear in exact order
     @Test
-    void logFileContainsTheFourSectionsInOrder() throws Exception {
+    void logFileContainsTheFiveSectionsInOrder() throws Exception {
         run(Examples.EX1);
         String log = Files.readString(dir.resolve("log.txt"));
         int a = log.indexOf("ExeStack:");
         int b = log.indexOf("SymTable:");
         int c = log.indexOf("Out:");
         int d = log.indexOf("FileTable:");
-        assertTrue(0 <= a && a < b && b < c && c < d);
+        int e = log.indexOf("Heap:");
+        assertTrue(0 <= a && a < b && b < c && c < d && d < e);
     }
 
     @Test
@@ -88,7 +90,6 @@ class ControllerTest {
         assertThrows(RepositoryException.class, controller::allStep);
     }
 
-    // A3 (§3.1, §3.2): Step 7 test verifying EX4 reads 15 and 50 and closes the file
     @Test
     void fileExampleReadsBothNumbersAndClosesTheFile() throws Exception {
         Path in = dir.resolve("test.in");
@@ -99,7 +100,6 @@ class ControllerTest {
         assertTrue(s.getFileTable().toMap().isEmpty());
     }
 
-    // A3 (§1.4, §3.1): Step 7 test verifying EX4 prints 0, 0 on an empty file
     @Test
     void fileExampleWithEmptyFilePrintsZerosAndClosesTheFile() throws Exception {
         Path emptyIn = dir.resolve("empty.in");
@@ -110,7 +110,6 @@ class ControllerTest {
         assertTrue(s.getFileTable().toMap().isEmpty());
     }
 
-    // A3 (§1.4, §3.1): Step 7 test verifying EX5 (5 < 7) prints 5
     @Test
     void example5PrintsFive() throws MyException {
         PrgState s = run(Examples.EX5);
