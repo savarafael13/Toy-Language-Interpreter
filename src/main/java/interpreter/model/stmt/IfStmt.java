@@ -5,22 +5,21 @@ import interpreter.exceptions.StatementException;
 import interpreter.model.PrgState;
 import interpreter.model.exp.IExp;
 import interpreter.model.value.BoolValue;
-import interpreter.model.value.IValue;
 
-public record IfStmt(IExp cond, IStmt thenStmt, IStmt elseStmt) implements IStmt {
+public record IfStmt(IExp exp, IStmt thenS, IStmt elseS) implements IStmt {
+
     @Override
     public PrgState execute(PrgState state) throws MyException {
-        IValue c = cond.eval(state.getSymTable());
-        //  a non-boolean condition is a StatementException, not an ExpressionException.
-        if (!(c instanceof BoolValue(boolean b)))
-            throw new StatementException("the condition of the if is not a boolean");
-        //  push exactly ONE branch - never both.
-        state.getExeStack().push(b ? thenStmt : elseStmt);
+        // A4 (§2.3): pass state.getHeap() into exp.eval(...)
+        if (!(exp.eval(state.getSymTable(), state.getHeap()) instanceof BoolValue(boolean cond))) {
+            throw new StatementException("conditional expr is not a boolean");
+        }
+        state.getExeStack().push(cond ? thenS : elseS);
         return state;
     }
 
     @Override
     public String toString() {
-        return "(if " + cond + " then " + thenStmt + " else " + elseStmt + ")";
+        return "(if " + exp + " then " + thenS + " else " + elseS + ")";
     }
 }

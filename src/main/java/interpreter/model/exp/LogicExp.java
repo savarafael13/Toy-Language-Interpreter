@@ -3,21 +3,24 @@ package interpreter.model.exp;
 import interpreter.exceptions.ExpressionException;
 import interpreter.exceptions.MyException;
 import interpreter.model.adt.IDictionary;
+import interpreter.model.adt.IHeap; // A4 (§2.3): passed down to sub-expressions
 import interpreter.model.value.BoolValue;
 import interpreter.model.value.IValue;
 
 public record LogicExp(LogicOp op, IExp left, IExp right) implements IExp {
+
+    // A4 (§2.3): passes heap when evaluating left and right operands
     @Override
-    public IValue eval(IDictionary<String, IValue> symTable) throws MyException {
-        // E4: both operands are always evaluated - no short-circuiting.
-        if (!(left.eval(symTable) instanceof BoolValue(boolean b1)))
+    public IValue eval(IDictionary<String, IValue> symTable, IHeap heap) throws MyException {
+        if (!(left.eval(symTable, heap) instanceof BoolValue(boolean b1)))
             throw new ExpressionException("first operand is not a boolean");
-        if (!(right.eval(symTable) instanceof BoolValue(boolean b2)))
+        if (!(right.eval(symTable, heap) instanceof BoolValue(boolean b2)))
             throw new ExpressionException("second operand is not a boolean");
-        return switch (op) {
-            case AND -> new BoolValue(b1 && b2);
-            case OR -> new BoolValue(b1 || b2);
-        };
+
+        return new BoolValue(switch (op) {
+            case AND -> b1 && b2;
+            case OR -> b1 || b2;
+        });
     }
 
     @Override
