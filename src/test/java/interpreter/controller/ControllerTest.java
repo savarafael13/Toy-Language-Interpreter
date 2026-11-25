@@ -160,7 +160,7 @@ class ControllerTest {
                 s.getHeap().getContent()
         );
     }
-    //
+    // a
     // A4 (§1.4, §3.1): EX10 counts down from 4 to 0
     @Test
     void example10CountsDownFromFourToZero() throws MyException {
