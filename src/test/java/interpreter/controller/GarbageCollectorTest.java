@@ -28,6 +28,8 @@ class GarbageCollectorTest {
             3, new IntValue(30),
             4, new IntValue(7)
     );
+    //safeCollector returns keys 1 2 3 and drops 4 . 4 has no path  from symtable but 1 is preserved cuz reachableaddres folows the chain frl 2 to ( 1 , int)inside heap
+
 
     @Test
     void keepsTheLocationsReachableThroughTheHeap() {

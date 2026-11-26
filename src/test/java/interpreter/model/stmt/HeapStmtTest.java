@@ -30,10 +30,11 @@ class HeapStmtTest {
     }
 
     // --- Rule S11: new(v, exp) ---
-
+    //
+    //
     @Test
     void newAllocatesAtAddressOneAndUpdatesTheVariable() throws MyException {
-        new NewStmt("v", new ValueExp(new IntValue(20))).execute(state);
+        new NewStmt("v", new ValueExp(new IntValue(20))).execute(state); // checks v is declared refvalue whose locationtype matches 20
         assertEquals(new RefValue(1, new IntType()), state.getSymTable().lookup("v"));
         assertEquals(new IntValue(20), state.getHeap().get(1));
     }
@@ -50,7 +51,8 @@ class HeapStmtTest {
         var exp = new ValueExp(new IntValue(20));
         assertThrows(StatementException.class, () -> new NewStmt("x", exp).execute(state));
     }
-
+    //
+    //
     @Test
     void newWithAValueOfTheWrongTypeThrows() {
         var exp = new ValueExp(new BoolValue(true));
